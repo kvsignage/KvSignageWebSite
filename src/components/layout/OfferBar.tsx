@@ -19,8 +19,8 @@ export function OfferBar() {
       <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center justify-center gap-3 text-sm">
         <span className="text-center text-gray-300">
           <span className="text-gold font-medium">Design FREE for All Orders</span>
-          <span className="hidden sm:inline text-gray-500"> | </span>
-          <span className="hidden sm:inline text-gold font-medium">New Shop? Inauguration Banner FREE</span>
+          <span className="text-gray-500"> | </span>
+          <span className="text-gold font-medium">New Shop? Inauguration Banner FREE</span>
           <span className="hidden sm:inline text-gray-500"> — Only 5 slots left this month</span>
         </span>
         <Link
