@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+  --color-black: #090B10;
+  --color-gold: #D4AF37;
+  --color-gold-light: #F0D060;
+  --color-gold-dark: #A68B1B;
+  --color-white: #F8F8F8;
+  --color-gray-50: #F5F5F6;
+  --color-gray-100: #E8E8EA;
+  --color-gray-200: #D1D1D6;
+  --color-gray-300: #B0B0B8;
+  --color-gray-400: #8E8E99;
+  --color-gray-500: #6B6B78;
+  --color-gray-600: #4A4A55;
+  --color-gray-700: #33333D;
+  --color-gray-800: #1E1E28;
+  --color-gray-900: #141420;
+  --color-gray-950: #0E0E18;
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-sora);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-gray-950);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-700);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-black);
+}

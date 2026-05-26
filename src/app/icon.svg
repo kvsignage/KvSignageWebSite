@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="95" fill="#0A0A0A"/>
+  <!-- K letter -->
+  <path d="M55 65 L55 135 L65 135 L65 105 L90 135 L103 135 L75 102 L100 65 L87 65 L65 97 L65 65 Z" fill="#FFFFFF"/>
+  <!-- V letter with gold accent -->
+  <path d="M95 65 L115 125 L135 65 L125 65 L115 100 L105 65 Z" fill="#FFFFFF"/>
+  <!-- Gold diamond on V -->
+  <path d="M115 75 L122 90 L115 105 L108 90 Z" fill="#D4AF37"/>
+  <!-- SIGNAGE text -->
+  <rect x="62" y="138" width="76" height="18" rx="2" fill="none" stroke="#D4AF37" stroke-width="1"/>
+  <text x="100" y="152" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="3" fill="#D4AF37">SIGNAGE</text>
+</svg>
