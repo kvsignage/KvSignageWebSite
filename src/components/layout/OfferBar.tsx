@@ -27,12 +27,12 @@ export function OfferBar() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <p className="text-center text-[11px] text-gold font-medium leading-snug">
+        <p className="text-center text-xs text-gold font-medium leading-snug">
           ✦ Design FREE for all orders. New shop? Inauguration banner FREE
         </p>
         <Link
           href="/contact"
-          className="px-5 py-1.5 bg-gold text-black font-bold text-[11px] rounded hover:bg-gold-light transition-colors"
+          className="px-5 py-1.5 bg-gold text-black font-bold text-xs rounded hover:bg-gold-light transition-colors"
         >
           Claim Now
         </Link>
