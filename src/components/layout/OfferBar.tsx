@@ -16,33 +16,48 @@ export function OfferBar() {
       transition={{ delay: 1, duration: 0.4 }}
       className="fixed top-16 lg:top-[72px] left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gold/10"
     >
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2">
-        {/* Offers text */}
-        <p className="text-center flex-1 text-[11px] sm:text-xs md:text-sm text-gray-300 leading-tight sm:leading-normal">
-          <span className="text-gold font-medium">✦ Design FREE for All Orders</span>
-          <span className="text-gray-500 mx-0.5 sm:mx-1">•</span>
-          <span className="text-gold font-medium">New Shop? Inauguration Banner FREE</span>
-          <span className="hidden md:inline text-gray-500"> — Only 5 slots left</span>
+      {/* Mobile layout */}
+      <div className="sm:hidden px-8 py-2.5 flex flex-col items-center gap-2 relative">
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute top-2.5 right-3 p-1 text-gray-500 hover:text-gray-300"
+          aria-label="Dismiss"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <p className="text-center text-[11px] text-gold font-medium leading-snug">
+          ✦ Design FREE for all orders. New shop? Inauguration banner FREE
         </p>
+        <Link
+          href="/contact"
+          className="px-5 py-1.5 bg-gold text-black font-bold text-[11px] rounded hover:bg-gold-light transition-colors"
+        >
+          Claim Now
+        </Link>
+      </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <Link
-            href="/contact"
-            className="px-2.5 sm:px-3.5 py-1 bg-gold/10 text-gold font-medium text-[10px] sm:text-xs rounded-md hover:bg-gold/20 transition-colors whitespace-nowrap border border-gold/20"
-          >
-            Claim Now
-          </Link>
-          <button
-            onClick={() => setDismissed(true)}
-            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
-            aria-label="Dismiss"
-          >
-            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      {/* Tablet & Desktop layout */}
+      <div className="hidden sm:flex items-center justify-center gap-3 px-6 py-2 relative">
+        <p className="text-sm text-gold font-medium">
+          ✦ Design FREE for all orders. New shop? Inauguration banner FREE
+        </p>
+        <Link
+          href="/contact"
+          className="px-4 py-1.5 bg-gold text-black font-bold text-xs rounded hover:bg-gold-light transition-colors"
+        >
+          Claim Now
+        </Link>
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute right-4 p-1 text-gray-500 hover:text-gray-300"
+          aria-label="Dismiss"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </motion.div>
   );
