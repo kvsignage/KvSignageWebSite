@@ -77,8 +77,19 @@ export async function createHubSpotContact(lead: LeadData) {
         properties: {
           dealname: `${lead.business} - ${lead.service}`,
           pipeline: "default",
-          dealstage: "3723161296",
-          description: `Service: ${lead.service}\nMessage: ${lead.message || "N/A"}`,
+          dealstage: "appointmentscheduled",
+          description: [
+            `Service: ${lead.service}`,
+            `Business: ${lead.business}`,
+            `Phone: ${lead.phone}`,
+            `Email: ${lead.email}`,
+            lead.message ? `Message: ${lead.message}` : null,
+            lead.utm_source ? `Source: ${lead.utm_source}` : null,
+            lead.utm_medium ? `Medium: ${lead.utm_medium}` : null,
+            lead.utm_campaign ? `Campaign: ${lead.utm_campaign}` : null,
+            lead.utm_content ? `Content: ${lead.utm_content}` : null,
+            lead.utm_term ? `Term: ${lead.utm_term}` : null,
+          ].filter(Boolean).join("\n"),
         },
         associations: [
           {
