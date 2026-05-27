@@ -39,7 +39,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight"
         >
-          Get <span className="text-gold">More Walk-ins</span>
+          Get <span className="text-gold">40% More Walk-ins</span>
           <br className="hidden sm:block" />
           <span className="sm:mt-2 inline-block"> With Signage That Sells</span>
         </motion.h1>

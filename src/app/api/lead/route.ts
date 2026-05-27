@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHubSpotContact } from "@/lib/hubspot";
 import { sendClientConfirmationEmail, sendSalesTeamNotification } from "@/lib/notify-email";
-import { sendLeadWhatsAppNotification } from "@/lib/notify-whatsapp";
+import { sendLeadWhatsAppNotification, sendClientWhatsAppConfirmation } from "@/lib/notify-whatsapp";
 import { sendMetaConversionEvent } from "@/lib/meta-capi";
 
 // Simple in-memory rate limiter: max 5 submissions per IP per 10 minutes
@@ -111,11 +111,12 @@ export async function POST(request: Request) {
     const lastName = lastParts.join(" ") || undefined;
 
     // Push to HubSpot + send notifications + Meta CAPI (all in parallel)
-    const [crmResult, clientEmailResult, teamEmailResult, whatsappResult, metaResult] = await Promise.allSettled([
+    const [crmResult, clientEmailResult, teamEmailResult, whatsappResult, clientWhatsappResult, metaResult] = await Promise.allSettled([
       createHubSpotContact(sanitized),
       sendClientConfirmationEmail(sanitized),
       sendSalesTeamNotification(sanitized),
       sendLeadWhatsAppNotification(sanitized),
+      sendClientWhatsAppConfirmation(sanitized),
       sendMetaConversionEvent({
         eventName: "Lead",
         email: sanitized.email,
