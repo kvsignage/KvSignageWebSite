@@ -64,7 +64,14 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-gray-400">
               <li className="flex items-start gap-2.5">
                 <span className="text-xs mt-0.5">📍</span>
-                <span>{siteConfig.address}</span>
+                <a
+                  href={siteConfig.googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gold transition-colors"
+                >
+                  {siteConfig.address}
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="text-xs">📞</span>
@@ -88,14 +95,14 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-gray-800/30 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} KV Signage. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy-policy" className="text-gray-500 text-sm hover:text-gold transition-colors">
+            <Link href="/privacy-policy" className="text-gray-400 text-sm hover:text-gold transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms-and-conditions" className="text-gray-500 text-sm hover:text-gold transition-colors">
+            <Link href="/terms-and-conditions" className="text-gray-400 text-sm hover:text-gold transition-colors">
               Terms &amp; Conditions
             </Link>
           </div>

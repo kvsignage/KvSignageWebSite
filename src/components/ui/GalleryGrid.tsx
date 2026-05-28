@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
 
 const galleryItems = [
   {
@@ -178,39 +177,30 @@ export function GalleryGrid() {
       {/* Grid */}
       <section className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-            >
-              {filtered.map((item) => (
-                <motion.div
-                  key={item.title}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden"
-                >
-                  <Image
-                    src={item.image}
-                    alt={item.alt}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                    <span className="inline-block px-2.5 py-1 bg-gold/90 text-black text-xs font-bold rounded-md mb-2">
-                      {item.category}
-                    </span>
-                    <h3 className="text-white font-semibold">{item.title}</h3>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((item, index) => (
+              <div
+                key={item.title}
+                className="group relative aspect-[4/3] rounded-2xl overflow-hidden animate-fade-in-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <Image
+                  src={item.image}
+                  alt={item.alt}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-x-0 bottom-0 p-5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                  <span className="inline-block px-2.5 py-1 bg-gold/90 text-black text-xs font-bold rounded-md mb-2">
+                    {item.category}
+                  </span>
+                  <h3 className="text-white font-semibold">{item.title}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </>

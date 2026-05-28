@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "motion/react";
 import { useState } from "react";
 
 export function OfferBar() {
@@ -10,11 +9,8 @@ export function OfferBar() {
   if (dismissed) return null;
 
   return (
-    <motion.div
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 1, duration: 0.4 }}
-      className="fixed top-16 lg:top-[72px] left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gold/10"
+    <div
+      className="fixed top-16 lg:top-[72px] left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gold/10 animate-slide-down [animation-delay:1000ms] [animation-fill-mode:backwards]"
     >
       {/* Mobile layout */}
       <div className="sm:hidden px-8 py-2.5 flex flex-col items-center gap-2 relative">
@@ -59,6 +55,6 @@ export function OfferBar() {
           </svg>
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

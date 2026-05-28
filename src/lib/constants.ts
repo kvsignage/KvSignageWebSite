@@ -7,11 +7,13 @@ export const siteConfig = {
   phone: "+91 89257 56408",
   whatsapp: "+91 89257 56408",
   email: "signagekv@gmail.com",
-  address: "Chennai, Tamil Nadu, India",
+  address: "593, 7th Street, J J Nagar, Mogappair East, Chennai - 600037",
   googleMapsEmbed:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d248849.84916296526!2d80.06892!3d13.0827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265ea4f7d3361%3A0x6e61a70b6863d433!2sChennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.0!2d80.1768!3d13.0765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a526f5b6a2e3c5d%3A0x1234567890abcdef!2sMogappair%20East%2C%20Chennai%2C%20Tamil%20Nadu%20600037!5e0!3m2!1sen!2sin!4v1",
+  googleMapsLink:
+    "https://www.google.com/maps/dir/?api=1&destination=13.083587,80.186888",
   social: {
-    instagram: "https://instagram.com/kvsignage",
+    instagram: "https://instagram.com/kv_signage",
     facebook: "https://www.facebook.com/profile.php?id=61590336094040",
   },
 };

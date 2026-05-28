@@ -4,10 +4,16 @@ import Image from "next/image";
 import { services, siteConfig } from "@/lib/constants";
 import { ScrollReveal, StaggerContainer, StaggerItem } from "@/components/animations/ScrollReveal";
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Signage Services",
+  title: "Signage Services in Chennai | LED, Neon, ACP, Flex & More",
   description:
     "Complete signage solutions in Chennai: LED sign boards, neon signs, ACP letters, flex banners, digital signage & inauguration banners. Free design consultation.",
+  keywords: ["signage services chennai", "sign board maker chennai", "LED sign board", "neon signs chennai", "ACP letter board chennai", "flex banner printing"],
+  alternates: {
+    canonical: `${baseUrl}/services`,
+  },
 };
 
 export default function ServicesPage() {

@@ -4,11 +4,28 @@ import { useState } from "react";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { faqItems } from "@/lib/constants";
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <section className="py-24 md:py-32 border-t border-gray-800/30">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-14">
           <ScrollReveal>

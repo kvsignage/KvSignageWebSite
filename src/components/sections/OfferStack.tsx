@@ -61,7 +61,7 @@ export function OfferStack() {
               <div className="mt-12 pt-10 border-t border-gray-800/60 text-center">
                 <div className="flex items-center justify-center gap-8">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Market Price</p>
+                    <p className="text-xs text-gray-400 uppercase tracking-wider">Market Price</p>
                     <p className="text-xl font-bold text-gray-500 line-through mt-1">₹15,000</p>
                   </div>
                   <div className="text-3xl text-gray-700">→</div>
@@ -84,7 +84,7 @@ export function OfferStack() {
               </div>
 
               {/* Trust line */}
-              <p className="mt-8 text-center text-sm text-gray-500">
+              <p className="mt-8 text-center text-sm text-gray-400">
                 ⚡ No payment required • 100% satisfaction guarantee
               </p>
             </div>
@@ -94,7 +94,7 @@ export function OfferStack() {
         {/* Sample design mockups */}
         <ScrollReveal delay={0.35}>
           <div className="mt-14 text-center">
-            <p className="text-gray-500 text-sm uppercase tracking-widest font-medium mb-6">Sample Designs We Create</p>
+            <p className="text-gray-400 text-sm uppercase tracking-widest font-medium mb-6">Sample Designs We Create</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { src: "/gallery/design-jamalias-mockup.jpg", label: "Jamalia's – Shop Name Board" },

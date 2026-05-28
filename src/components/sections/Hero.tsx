@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "motion/react";
 
 export function Hero() {
   return (
@@ -20,36 +17,27 @@ export function Hero() {
       */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 pt-[172px] sm:pt-[132px] lg:pt-36 pb-20 sm:pb-24 lg:pb-32 text-center flex flex-col items-center sm:justify-center sm:min-h-svh">
         {/* Urgency Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-gold/[0.08] border border-gold/20 mb-6 sm:mb-8"
+        <div
+          className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-gold/[0.08] border border-gold/20 mb-6 sm:mb-8 animate-fade-in-up"
         >
           <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
           <span className="text-gold/90 text-xs sm:text-sm font-medium tracking-wide">
             Limited — Only 5 Free Design Slots Left
           </span>
-        </motion.div>
+        </div>
 
         {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight"
+        <h1
+          className="text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight animate-fade-in-up [animation-delay:100ms]"
         >
           Get <span className="text-gold">40% More Walk-ins</span>
           <br className="hidden sm:block" />
           <span className="sm:mt-2 inline-block"> With Signage That Sells</span>
-        </motion.h1>
+        </h1>
 
         {/* Value Props */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="mt-8 sm:mt-10 grid grid-cols-3 gap-4 sm:gap-8 max-w-xl sm:max-w-2xl mx-auto w-full"
+        <div
+          className="mt-8 sm:mt-10 grid grid-cols-3 gap-4 sm:gap-8 max-w-xl sm:max-w-2xl mx-auto w-full animate-fade-in-up [animation-delay:200ms]"
         >
           <div className="flex flex-col items-center gap-2 sm:gap-3">
             <svg className="w-7 h-7 sm:w-9 sm:h-9 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -77,14 +65,11 @@ export function Hero() {
               500+ Signage<br />Projects Across<br className="sm:hidden" /> Chennai
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.35 }}
-          className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-5 w-full sm:w-auto"
+        <div
+          className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-5 w-full sm:w-auto animate-fade-in-up [animation-delay:350ms]"
         >
           <Link
             href="/contact"
@@ -100,34 +85,26 @@ export function Hero() {
             View Our 500+ Projects
             <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Trust line */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="mt-8 sm:mt-14 text-xs sm:text-sm text-gray-500 tracking-wide"
+        <p
+          className="mt-8 sm:mt-14 text-xs sm:text-sm text-gray-400 tracking-wide animate-fade-in [animation-delay:700ms]"
         >
           500+ projects across Chennai — T. Nagar to OMR • 8+ years experience
-        </motion.p>
+        </p>
       </div>
 
       {/* Scroll indicator - hidden on mobile */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-        className="hidden sm:block absolute bottom-8 left-1/2 -translate-x-1/2"
+      <div
+        className="hidden sm:block absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in [animation-delay:2000ms]"
       >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-5 h-9 border-2 border-gray-700/60 rounded-full flex justify-center"
+        <div
+          className="w-5 h-9 border-2 border-gray-700/60 rounded-full flex justify-center animate-scroll-bounce"
         >
-          <motion.div className="w-1 h-2.5 bg-gold/60 rounded-full mt-2" />
-        </motion.div>
-      </motion.div>
+          <div className="w-1 h-2.5 bg-gold/60 rounded-full mt-2" />
+        </div>
+      </div>
     </section>
   );
 }

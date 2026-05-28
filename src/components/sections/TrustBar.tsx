@@ -1,20 +1,32 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { useRef, useState, useEffect } from "react";
 import { stats } from "@/lib/constants";
 
 function AnimatedStat({ value, label, delay }: { value: string; label: string; delay: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { rootMargin: "-50px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 16 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay }}
-      className="text-center py-8 px-4"
+      className="text-center py-8 px-4 transition-all duration-500 ease-out"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(16px)",
+        transitionDelay: `${delay * 1000}ms`,
+      }}
     >
       <div className="text-3xl sm:text-4xl font-bold text-gold font-[family-name:var(--font-heading)]">
         {value}
@@ -22,7 +34,7 @@ function AnimatedStat({ value, label, delay }: { value: string; label: string; d
       <div className="mt-2 text-sm text-gray-400">
         {label}
       </div>
-    </motion.div>
+    </div>
   );
 }
 

@@ -1,3 +1,5 @@
+import { log, logError, logWarn } from "@/lib/logger";
+
 interface MetaEventData {
   event_name: string;
   user_data: {
@@ -41,9 +43,12 @@ export async function sendMetaConversionEvent({
   const accessToken = process.env.META_CONVERSIONS_API_TOKEN;
 
   if (!pixelId || !accessToken) {
-    console.warn("Meta Conversions API not configured (missing PIXEL_ID or API_TOKEN)");
+    logWarn("MetaCAPI", "config", "Meta Conversions API not configured (missing PIXEL_ID or API_TOKEN)");
     return null;
   }
+
+  const start = performance.now();
+  log("MetaCAPI", "send", "Preparing conversion event", { event: eventName });
 
   const userData: MetaEventData["user_data"] = {};
 
@@ -88,13 +93,16 @@ export async function sendMetaConversionEvent({
 
     if (!res.ok) {
       const error = await res.json();
-      console.error("Meta CAPI error:", error);
+      logError("MetaCAPI", "send", "Event send failed", error, { event: eventName, status: res.status });
       return null;
     }
 
-    return await res.json();
+    const result = await res.json();
+    const durationMs = Math.round(performance.now() - start);
+    log("MetaCAPI", "send", "Event sent successfully", { event: eventName, durationMs });
+    return result;
   } catch (error) {
-    console.error("Meta CAPI request failed:", error);
+    logError("MetaCAPI", "send", "Request failed", error, { event: eventName });
     return null;
   }
 }

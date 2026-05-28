@@ -1,3 +1,5 @@
+import { log, logError } from "@/lib/logger";
+
 interface LeadData {
   name: string;
   email: string;
@@ -21,11 +23,12 @@ export async function sendClientConfirmationEmail(lead: LeadData) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
   if (!apiKey) {
-    console.error("RESEND_API_KEY not configured");
+    logError("Email", "config", "RESEND_API_KEY not configured");
     return null;
   }
 
   const firstName = escapeHtml(lead.name.split(" ")[0]);
+  log("Email", "sendClient", "Sending client confirmation", { to: lead.email });
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -70,13 +73,15 @@ export async function sendClientConfirmationEmail(lead: LeadData) {
     });
 
     if (!res.ok) {
-      console.error("Client confirmation email failed:", await res.json());
+      logError("Email", "sendClient", "Client confirmation email failed", await res.json(), { to: lead.email, status: res.status });
       return null;
     }
 
-    return await res.json();
+    const result = await res.json();
+    log("Email", "sendClient", "Client confirmation email sent", { emailId: result.id, to: lead.email });
+    return result;
   } catch (error) {
-    console.error("Client email error:", error);
+    logError("Email", "sendClient", "Client email error", error, { to: lead.email });
     return null;
   }
 }
@@ -87,9 +92,12 @@ export async function sendSalesTeamNotification(lead: LeadData) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
   if (!apiKey || !salesEmail) {
-    console.error("RESEND_API_KEY or SALES_TEAM_EMAIL not configured");
+    logError("Email", "config", "RESEND_API_KEY or SALES_TEAM_EMAIL not configured");
     return null;
   }
+
+  const recipients = salesEmail.split(",").map((e: string) => e.trim());
+  log("Email", "sendTeam", "Sending sales team notification", { to: recipients, lead: lead.name });
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -100,7 +108,7 @@ export async function sendSalesTeamNotification(lead: LeadData) {
       },
       body: JSON.stringify({
         from: `KV Signage Leads <${fromEmail}>`,
-        to: salesEmail.split(",").map((e: string) => e.trim()),
+        to: recipients,
         subject: `\uD83D\uDD14 New Lead: ${lead.name} — ${lead.service}`,
         html: `
           <div style="font-family: -apple-system, sans-serif; max-width: 520px; padding: 24px;">
@@ -137,13 +145,15 @@ export async function sendSalesTeamNotification(lead: LeadData) {
     });
 
     if (!res.ok) {
-      console.error("Sales team email failed:", await res.json());
+      logError("Email", "sendTeam", "Sales team email failed", await res.json(), { status: res.status });
       return null;
     }
 
-    return await res.json();
+    const result = await res.json();
+    log("Email", "sendTeam", "Sales team email sent", { emailId: result.id });
+    return result;
   } catch (error) {
-    console.error("Sales team email error:", error);
+    logError("Email", "sendTeam", "Sales team email error", error);
     return null;
   }
 }

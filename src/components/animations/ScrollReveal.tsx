@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
-import { type ReactNode } from "react";
+import { useRef, useEffect, useState, type ReactNode, Children, cloneElement, isValidElement, type ReactElement } from "react";
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -12,21 +11,15 @@ interface ScrollRevealProps {
   once?: boolean;
 }
 
-const getVariants = (direction: string): Variants => {
-  const directions: Record<string, { x?: number; y?: number }> = {
-    up: { y: 40 },
-    down: { y: -40 },
-    left: { x: 40 },
-    right: { x: -40 },
-    none: {},
+const getTransform = (direction: string): string => {
+  const transforms: Record<string, string> = {
+    up: "translateY(40px)",
+    down: "translateY(-40px)",
+    left: "translateX(40px)",
+    right: "translateX(-40px)",
+    none: "none",
   };
-
-  const offset = directions[direction] || {};
-
-  return {
-    hidden: { opacity: 0, ...offset },
-    visible: { opacity: 1, x: 0, y: 0 },
-  };
+  return transforms[direction] || "translateY(40px)";
 };
 
 export function ScrollReveal({
@@ -37,17 +30,38 @@ export function ScrollReveal({
   duration = 0.6,
   once = true,
 }: ScrollRevealProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          if (once) observer.disconnect();
+        }
+      },
+      { rootMargin: "-80px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [once]);
+
   return (
-    <motion.div
+    <div
+      ref={ref}
       className={className}
-      variants={getVariants(direction)}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: "-80px" }}
-      transition={{ duration, delay, ease: "easeOut" }}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "none" : getTransform(direction),
+        transition: `opacity ${duration}s ease-out ${delay}s, transform ${duration}s ease-out ${delay}s`,
+        willChange: visible ? "auto" : "opacity, transform",
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -60,35 +74,61 @@ export function StaggerContainer({
   className?: string;
   staggerDelay?: number;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { rootMargin: "-80px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <motion.div
-      className={className}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ staggerChildren: staggerDelay }}
-    >
-      {children}
-    </motion.div>
+    <div ref={ref} className={className}>
+      {Children.map(children, (child, index) => {
+        if (isValidElement(child)) {
+          return cloneElement(child as ReactElement<{ staggerIndex?: number; staggerVisible?: boolean; staggerDelay?: number }>, {
+            staggerIndex: index,
+            staggerVisible: visible,
+            staggerDelay,
+          });
+        }
+        return child;
+      })}
+    </div>
   );
 }
 
 export function StaggerItem({
   children,
   className,
+  staggerIndex = 0,
+  staggerVisible = false,
+  staggerDelay = 0.1,
 }: {
   children: ReactNode;
   className?: string;
+  staggerIndex?: number;
+  staggerVisible?: boolean;
+  staggerDelay?: number;
 }) {
+  const delay = staggerIndex * staggerDelay;
+
   return (
-    <motion.div
+    <div
       className={className}
-      variants={{
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+      style={{
+        opacity: staggerVisible ? 1 : 0,
+        transform: staggerVisible ? "none" : "translateY(30px)",
+        transition: `opacity 0.5s ease-out ${delay}s, transform 0.5s ease-out ${delay}s`,
       }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

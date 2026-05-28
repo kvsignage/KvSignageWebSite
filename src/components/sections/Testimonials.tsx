@@ -49,7 +49,7 @@ export function Testimonials() {
                   </div>
                   <div>
                     <p className="font-medium text-white text-sm">{testimonial.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{testimonial.business}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{testimonial.business}</p>
                   </div>
                 </div>
               </div>

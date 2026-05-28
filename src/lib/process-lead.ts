@@ -1,4 +1,5 @@
 import { createHubSpotContact } from "@/lib/hubspot";
+import { log, logError } from "@/lib/logger";
 import { sendClientConfirmationEmail, sendSalesTeamNotification } from "@/lib/notify-email";
 import { sendLeadWhatsAppNotification, sendClientWhatsAppConfirmation } from "@/lib/notify-whatsapp";
 
@@ -22,6 +23,10 @@ export interface LeadInput {
  * Used by: website form, WhatsApp webhook, Facebook Lead Ads webhook.
  */
 export async function processLead(lead: LeadInput) {
+  const start = performance.now();
+  const leadId = `${lead.name}|${lead.phone}`;
+  log("ProcessLead", "start", "Processing lead", { leadId, service: lead.service, source: lead.utm_source });
+
   const results = await Promise.allSettled([
     createHubSpotContact(lead),
     sendSalesTeamNotification(lead),
@@ -37,21 +42,44 @@ export async function processLead(lead: LeadInput) {
 
   const [crmResult, teamEmailResult, whatsappResult, clientEmailResult, clientWhatsappResult] = results;
 
+  const status = (r: PromiseSettledResult<unknown>) => r.status === "fulfilled" ? "ok" : "failed";
+
   if (crmResult.status === "rejected") {
-    console.error("CRM push failed:", crmResult.reason);
+    logError("ProcessLead", "crm", "CRM push failed", crmResult.reason, { leadId });
+  } else {
+    log("ProcessLead", "crm", crmResult.value ? "CRM push succeeded" : "CRM push returned null", { leadId });
   }
   if (teamEmailResult.status === "rejected") {
-    console.error("Sales team email failed:", teamEmailResult.reason);
+    logError("ProcessLead", "teamEmail", "Sales team email failed", teamEmailResult.reason, { leadId });
+  } else {
+    log("ProcessLead", "teamEmail", "Sales team email sent", { leadId });
   }
   if (whatsappResult.status === "rejected") {
-    console.error("WhatsApp team notification failed:", whatsappResult.reason);
+    logError("ProcessLead", "teamWhatsApp", "WhatsApp team notification failed", whatsappResult.reason, { leadId });
+  } else {
+    log("ProcessLead", "teamWhatsApp", "WhatsApp team notification sent", { leadId });
   }
   if (clientEmailResult.status === "rejected") {
-    console.error("Client email failed:", clientEmailResult.reason);
+    logError("ProcessLead", "clientEmail", "Client email failed", clientEmailResult.reason, { leadId });
+  } else {
+    log("ProcessLead", "clientEmail", lead.email?.includes("@placeholder.local") ? "Skipped (placeholder email)" : "Client email sent", { leadId });
   }
   if (clientWhatsappResult.status === "rejected") {
-    console.error("Client WhatsApp failed:", clientWhatsappResult.reason);
+    logError("ProcessLead", "clientWhatsApp", "Client WhatsApp failed", clientWhatsappResult.reason, { leadId });
+  } else {
+    log("ProcessLead", "clientWhatsApp", lead.phone ? "Client WhatsApp sent" : "Skipped (no phone)", { leadId });
   }
+
+  const durationMs = Math.round(performance.now() - start);
+  log("ProcessLead", "complete", `Lead processing finished in ${durationMs}ms`, {
+    leadId,
+    crm: status(crmResult),
+    teamEmail: status(teamEmailResult),
+    teamWhatsApp: status(whatsappResult),
+    clientEmail: status(clientEmailResult),
+    clientWhatsApp: status(clientWhatsappResult),
+    durationMs,
+  });
 
   return {
     crm: crmResult.status === "fulfilled" ? crmResult.value : null,

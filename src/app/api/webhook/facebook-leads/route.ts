@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { log, logError, logWarn } from "@/lib/logger";
 import { processLead } from "@/lib/process-lead";
 
 /**
@@ -16,23 +17,27 @@ export async function GET(request: Request) {
   const challenge = url.searchParams.get("hub.challenge");
 
   if (mode === "subscribe" && token === process.env.FB_WEBHOOK_VERIFY_TOKEN) {
-    console.log("Facebook webhook verified");
+    log("FBWebhook", "verify", "Facebook webhook verified");
     return new Response(challenge, { status: 200 });
   }
 
+  logWarn("FBWebhook", "verify", "Verification failed", { mode, tokenMatch: token === process.env.FB_WEBHOOK_VERIFY_TOKEN });
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 }
 
 // Incoming lead ad events
 export async function POST(request: Request) {
+  const start = performance.now();
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
+    logWarn("FBWebhook", "parse", "Invalid request body");
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
   const entries = (body.entry as Array<Record<string, unknown>>) || [];
+  log("FBWebhook", "received", "Webhook event received", { entries: entries.length });
 
   for (const entry of entries) {
     const changes = (entry.changes as Array<Record<string, unknown>>) || [];
@@ -44,16 +49,23 @@ export async function POST(request: Request) {
 
         if (!leadgenId) continue;
 
+        log("FBWebhook", "leadgen", "Processing leadgen event", { leadgenId, pageId });
+
         // Fetch full lead data from Facebook Graph API
         const leadData = await fetchFacebookLead(leadgenId, pageId);
         if (leadData) {
+          log("FBWebhook", "processLead", "Calling processLead", { leadgenId, name: leadData.name });
           await processLead(leadData);
+        } else {
+          logError("FBWebhook", "fetchLead", "Failed to fetch lead data", undefined, { leadgenId });
         }
       }
     }
   }
 
   // Always return 200 to acknowledge
+  const durationMs = Math.round(performance.now() - start);
+  log("FBWebhook", "complete", `Webhook processed in ${durationMs}ms`, { durationMs, entries: entries.length });
   return NextResponse.json({ status: "ok" });
 }
 
@@ -65,9 +77,11 @@ async function fetchFacebookLead(leadId: string, _pageId: string) {
   const token = process.env.FB_PAGE_ACCESS_TOKEN;
 
   if (!token) {
-    console.error("FB_PAGE_ACCESS_TOKEN not configured");
+    logError("FBWebhook", "config", "FB_PAGE_ACCESS_TOKEN not configured");
     return null;
   }
+
+  log("FBWebhook", "fetchLead", "Fetching lead from Graph API", { leadId });
 
   try {
     const res = await fetch(
@@ -75,7 +89,7 @@ async function fetchFacebookLead(leadId: string, _pageId: string) {
     );
 
     if (!res.ok) {
-      console.error("Facebook lead fetch failed:", await res.json());
+      logError("FBWebhook", "fetchLead", "Facebook lead fetch failed", await res.json(), { leadId, status: res.status });
       return null;
     }
 
@@ -94,6 +108,8 @@ async function fetchFacebookLead(leadId: string, _pageId: string) {
       `${fields.first_name || ""} ${fields.last_name || ""}`.trim() ||
       "Facebook Lead";
 
+    log("FBWebhook", "fetchLead", "Lead data mapped", { leadId, name, fieldsFound: Object.keys(fields) });
+
     return {
       name: name.slice(0, 100),
       email: (fields.email || `fb_lead_${leadId}@placeholder.local`).slice(0, 200),
@@ -106,7 +122,7 @@ async function fetchFacebookLead(leadId: string, _pageId: string) {
       utm_campaign: "lead_ads",
     };
   } catch (error) {
-    console.error("Facebook lead fetch error:", error);
+    logError("FBWebhook", "fetchLead", "Facebook lead fetch error", error, { leadId });
     return null;
   }
 }

@@ -38,10 +38,12 @@ export const metadata: Metadata = {
   authors: [{ name: "KV Signage" }],
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/logo.svg", type: "image/svg+xml" },
     ],
-    apple: { url: "/logo.svg", type: "image/svg+xml" },
-    shortcut: "/logo.svg",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    shortcut: "/favicon.ico",
   },
   openGraph: {
     type: "website",
@@ -64,6 +66,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  manifest: "/manifest.json",
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  },
 };
 
 export default function RootLayout({
@@ -80,20 +86,26 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
+              "@id": (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000") + "/#organization",
               name: "KV Signage",
-              description: "Premium signage solutions in Chennai",
+              description: "Chennai's trusted signage partner. Premium LED sign boards, neon signs, ACP letters, flex banners, digital signage & inauguration banners.",
               url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
               telephone: "+91 89257 56408",
+              email: "signagekv@gmail.com",
+              image: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000") + "/og-image.png",
+              logo: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000") + "/logo.svg",
               address: {
                 "@type": "PostalAddress",
+                streetAddress: "593, 7th Street, J J Nagar, Mogappair East",
                 addressLocality: "Chennai",
                 addressRegion: "Tamil Nadu",
+                postalCode: "600037",
                 addressCountry: "IN",
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "13.0827",
-                longitude: "80.2707",
+                latitude: "13.083587",
+                longitude: "80.186888",
               },
               openingHoursSpecification: {
                 "@type": "OpeningHoursSpecification",
@@ -109,6 +121,14 @@ export default function RootLayout({
                 closes: "19:00",
               },
               priceRange: "₹₹",
+              areaServed: {
+                "@type": "City",
+                name: "Chennai",
+              },
+              sameAs: [
+                "https://instagram.com/kv_signage",
+                "https://www.facebook.com/profile.php?id=61590336094040",
+              ],
               aggregateRating: {
                 "@type": "AggregateRating",
                 ratingValue: "4.9",

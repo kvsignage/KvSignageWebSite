@@ -51,7 +51,7 @@ export function FinalCTA() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.3}>
-          <p className="mt-8 text-sm text-gray-500">
+          <p className="mt-8 text-sm text-gray-400">
             No spam. No obligation. Just a free design for your business.
           </p>
         </ScrollReveal>

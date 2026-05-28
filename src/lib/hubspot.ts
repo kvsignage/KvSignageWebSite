@@ -1,3 +1,5 @@
+import { log, logError } from "@/lib/logger";
+
 interface LeadData {
   name: string;
   email: string;
@@ -13,15 +15,18 @@ interface LeadData {
 }
 
 export async function createHubSpotContact(lead: LeadData) {
+  const start = performance.now();
   const apiKey = process.env.HUBSPOT_API_KEY;
 
   if (!apiKey) {
-    console.error("HUBSPOT_API_KEY not configured");
+    logError("HubSpot", "config", "HUBSPOT_API_KEY not configured");
     return null;
   }
 
   const [firstName, ...lastParts] = lead.name.split(" ");
   const lastName = lastParts.join(" ") || "-";
+
+  log("HubSpot", "createContact", "Creating contact", { email: lead.email });
 
   try {
     // Create contact
@@ -57,16 +62,18 @@ export async function createHubSpotContact(lead: LeadData) {
       const errorData = await contactRes.json();
       // If contact already exists, that's fine
       if (errorData.category === "CONFLICT") {
-        console.log("Contact already exists in HubSpot");
+        log("HubSpot", "createContact", "Contact already exists", { email: lead.email });
         return { existing: true };
       }
-      console.error("HubSpot contact creation failed:", errorData);
+      logError("HubSpot", "createContact", "Contact creation failed", errorData, { email: lead.email, status: contactRes.status });
       return null;
     }
 
     const contact = await contactRes.json();
+    log("HubSpot", "createContact", "Contact created", { contactId: contact.id, email: lead.email });
 
     // Create deal associated with contact
+    log("HubSpot", "createDeal", "Creating deal", { contactId: contact.id, dealName: `${lead.business} - ${lead.service}` });
     const dealRes = await fetch("https://api.hubapi.com/crm/v3/objects/deals", {
       method: "POST",
       headers: {
@@ -106,12 +113,18 @@ export async function createHubSpotContact(lead: LeadData) {
     });
 
     if (!dealRes.ok) {
-      console.error("HubSpot deal creation failed:", await dealRes.json());
+      logError("HubSpot", "createDeal", "Deal creation failed", await dealRes.json(), { contactId: contact.id, status: dealRes.status });
+    } else {
+      const deal = await dealRes.json();
+      log("HubSpot", "createDeal", "Deal created", { dealId: deal.id, contactId: contact.id });
     }
+
+    const durationMs = Math.round(performance.now() - start);
+    log("HubSpot", "complete", `HubSpot operations finished in ${durationMs}ms`, { durationMs, contactId: contact.id });
 
     return contact;
   } catch (error) {
-    console.error("HubSpot API error:", error);
+    logError("HubSpot", "api", "HubSpot API error", error);
     return null;
   }
 }

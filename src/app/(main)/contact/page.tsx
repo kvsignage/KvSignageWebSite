@@ -3,10 +3,15 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { LeadForm } from "@/components/ui/LeadForm";
 import { siteConfig } from "@/lib/constants";
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: "Contact Us - Get Your Free Design",
   description:
     "Contact KV Signage Chennai for a FREE design mockup (every order). Opening a new shop? Inauguration banner is on us. Call, WhatsApp, or fill our form.",
+  alternates: {
+    canonical: `${baseUrl}/contact`,
+  },
 };
 
 export default function ContactPage() {
@@ -94,7 +99,14 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-white">Visit Us</h3>
-                        <p className="text-gray-400">{siteConfig.address}</p>
+                        <a
+                          href={siteConfig.googleMapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-gold transition-colors"
+                        >
+                          {siteConfig.address}
+                        </a>
                         <p className="text-sm text-gray-500 mt-1">Mon - Sat: 9:00 AM - 7:00 PM</p>
                       </div>
                     </div>
@@ -102,18 +114,23 @@ export default function ContactPage() {
                 </div>
 
                 {/* Map */}
-                <div className="rounded-xl overflow-hidden border border-gray-800">
+                <a
+                  href={siteConfig.googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-xl overflow-hidden border border-gray-800 hover:border-gold/50 transition-colors"
+                >
                   <iframe
                     src={siteConfig.googleMapsEmbed}
                     width="100%"
                     height="250"
-                    style={{ border: 0 }}
+                    style={{ border: 0, pointerEvents: "none" }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     title="KV Signage Location"
                   />
-                </div>
+                </a>
               </div>
             </ScrollReveal>
           </div>

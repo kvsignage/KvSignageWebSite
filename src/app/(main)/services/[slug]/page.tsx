@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { services } from "@/lib/constants";
+import { services, siteConfig } from "@/lib/constants";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { LeadForm } from "@/components/ui/LeadForm";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export async function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -19,9 +21,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = services.find((s) => s.slug === slug);
   if (!service) return {};
 
+  const title = `${service.title} in Chennai | Starting ${service.startingPrice}`;
+  const description = `${service.description} Get a FREE design consultation for ${service.title.toLowerCase()} from KV Signage, Chennai's trusted signage partner. Starting at just ${service.startingPrice}.`;
+
   return {
-    title: `${service.title} in Chennai`,
-    description: `${service.description} Get a FREE design consultation for ${service.title.toLowerCase()} from KV Signage, Chennai's trusted signage partner.`,
+    title,
+    description,
+    keywords: [
+      `${service.title.toLowerCase()} chennai`,
+      `${service.title.toLowerCase()} near me`,
+      `best ${service.title.toLowerCase()} in chennai`,
+      `${service.title.toLowerCase()} price`,
+      "signage chennai",
+      "KV Signage",
+    ],
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/services/${service.slug}`,
+      images: [{ url: `${baseUrl}${service.image}`, width: 1200, height: 630, alt: service.title }],
+      type: "website",
+    },
+    alternates: {
+      canonical: `${baseUrl}/services/${service.slug}`,
+    },
   };
 }
 
@@ -31,8 +54,64 @@ export default async function ServicePage({ params }: Props) {
 
   if (!service) notFound();
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: service.title,
+    description: service.description,
+    provider: {
+      "@type": "LocalBusiness",
+      name: "KV Signage",
+      url: baseUrl,
+      telephone: siteConfig.phone,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "593, 7th Street, J J Nagar, Mogappair East",
+        addressLocality: "Chennai",
+        addressRegion: "Tamil Nadu",
+        postalCode: "600037",
+        addressCountry: "IN",
+      },
+    },
+    areaServed: {
+      "@type": "City",
+      name: "Chennai",
+    },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "INR",
+      price: service.startingPrice.replace(/[^\d]/g, ""),
+      priceSpecification: {
+        "@type": "PriceSpecification",
+        priceCurrency: "INR",
+        price: service.startingPrice.replace(/[^\d]/g, ""),
+      },
+      availability: "https://schema.org/InStock",
+    },
+    image: `${baseUrl}${service.image}`,
+    url: `${baseUrl}/services/${service.slug}`,
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: "Services", item: `${baseUrl}/services` },
+      { "@type": "ListItem", position: 3, name: service.title, item: `${baseUrl}/services/${service.slug}` },
+    ],
+  };
+
   return (
     <div className="pt-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {/* Hero */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-gray-900/50 to-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

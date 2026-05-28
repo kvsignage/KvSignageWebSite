@@ -1,3 +1,5 @@
+import { log, logError, logWarn } from "@/lib/logger";
+
 interface LeadData {
   name: string;
   email: string;
@@ -23,9 +25,11 @@ async function sendWhatsAppTemplate(
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
   if (!token || !phoneNumberId) {
-    console.error("WhatsApp API credentials not configured");
+    logError("WhatsApp", "config", "WhatsApp API credentials not configured");
     return null;
   }
+
+  log("WhatsApp", "sendTemplate", "Sending template", { template: templateName, to });
 
   try {
     const res = await fetch(
@@ -59,13 +63,15 @@ async function sendWhatsAppTemplate(
 
     if (!res.ok) {
       const err = await res.json();
-      console.error(`WhatsApp template "${templateName}" failed:`, err);
+      logError("WhatsApp", "sendTemplate", `Template "${templateName}" failed`, err, { to, status: res.status });
       return null;
     }
 
-    return await res.json();
+    const result = await res.json();
+    log("WhatsApp", "sendTemplate", "Template sent successfully", { template: templateName, to, messageId: result.messages?.[0]?.id });
+    return result;
   } catch (error) {
-    console.error(`WhatsApp template "${templateName}" error:`, error);
+    logError("WhatsApp", "sendTemplate", `Template "${templateName}" error`, error, { to });
     return null;
   }
 }
@@ -79,9 +85,11 @@ export async function sendLeadWhatsAppNotification(lead: LeadData) {
   const notifyPhone = process.env.WHATSAPP_NOTIFY_PHONE;
 
   if (!notifyPhone) {
-    console.error("WHATSAPP_NOTIFY_PHONE not configured");
+    logError("WhatsApp", "teamNotify", "WHATSAPP_NOTIFY_PHONE not configured");
     return null;
   }
+
+  log("WhatsApp", "teamNotify", "Sending team notification", { lead: lead.name });
 
   return sendWhatsAppTemplate(notifyPhone, TEMPLATES.SALES_NOTIFICATION, "en", [
     lead.name,
@@ -103,7 +111,7 @@ export async function sendClientWhatsAppConfirmation(lead: LeadData) {
   const clientPhone = lead.phone.replace(/[^0-9]/g, "");
 
   if (!clientPhone) {
-    console.error("Client phone number invalid");
+    logWarn("WhatsApp", "clientConfirm", "Client phone number invalid", { raw: lead.phone });
     return null;
   }
   const refId = `KVS-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString(36).toUpperCase()}`;

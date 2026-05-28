@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHubSpotContact } from "@/lib/hubspot";
+import { log, logError, logWarn } from "@/lib/logger";
 import { sendClientConfirmationEmail, sendSalesTeamNotification } from "@/lib/notify-email";
 import { sendLeadWhatsAppNotification, sendClientWhatsAppConfirmation } from "@/lib/notify-whatsapp";
 import { sendMetaConversionEvent } from "@/lib/meta-capi";
@@ -39,9 +40,12 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean);
 
 export async function POST(request: Request) {
+  const start = performance.now();
+
   // Origin validation (CSRF protection)
   const origin = request.headers.get("origin");
   if (origin && ALLOWED_ORIGINS.length > 0 && !ALLOWED_ORIGINS.includes(origin)) {
+    logWarn("LeadAPI", "csrf", "Blocked request from unknown origin", { origin });
     return NextResponse.json(
       { error: "Forbidden" },
       { status: 403 }
@@ -55,6 +59,7 @@ export async function POST(request: Request) {
     "unknown";
 
   if (isRateLimited(ip)) {
+    logWarn("LeadAPI", "rateLimit", "Rate limit exceeded", { ip });
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
       { status: 429 }
@@ -65,6 +70,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
+    logWarn("LeadAPI", "parse", "Invalid request body", { ip });
     return NextResponse.json(
       { error: "Invalid request body" },
       { status: 400 }
@@ -77,6 +83,7 @@ export async function POST(request: Request) {
 
     // Basic server-side validation
     if (!name || !email || !phone || !business || !service) {
+      logWarn("LeadAPI", "validation", "Missing required fields", { ip, fields: { name: !!name, email: !!email, phone: !!phone, business: !!business, service: !!service } });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -85,6 +92,7 @@ export async function POST(request: Request) {
 
     // Email format validation
     if (!isValidEmail(String(email))) {
+      logWarn("LeadAPI", "validation", "Invalid email format", { ip, email: String(email).slice(0, 50) });
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 }
@@ -106,9 +114,13 @@ export async function POST(request: Request) {
       utm_term: utm_term ? String(utm_term).slice(0, 200) : undefined,
     };
 
+    log("LeadAPI", "validated", "Input validation passed", { ip, name: sanitized.name, phone: sanitized.phone, service: sanitized.service });
+
     // Split name for Meta CAPI
     const [firstName, ...lastParts] = sanitized.name.split(" ");
     const lastName = lastParts.join(" ") || undefined;
+
+    log("LeadAPI", "processing", "Starting parallel processing");
 
     // Push to HubSpot + send notifications + Meta CAPI (all in parallel)
     const [crmResult, clientEmailResult, teamEmailResult, whatsappResult, clientWhatsappResult, metaResult] = await Promise.allSettled([
@@ -132,24 +144,38 @@ export async function POST(request: Request) {
       }),
     ]);
 
+    const s = (r: PromiseSettledResult<unknown>) => r.status === "fulfilled" ? "ok" : "failed";
+
     if (crmResult.status === "rejected" || (crmResult.status === "fulfilled" && !crmResult.value)) {
-      console.error("CRM push failed");
+      logError("LeadAPI", "crm", "CRM push failed", crmResult.status === "rejected" ? crmResult.reason : undefined);
     }
     if (clientEmailResult.status === "rejected") {
-      console.error("Client email failed");
+      logError("LeadAPI", "clientEmail", "Client email failed", clientEmailResult.reason);
     }
     if (teamEmailResult.status === "rejected") {
-      console.error("Sales team email failed");
+      logError("LeadAPI", "teamEmail", "Sales team email failed", teamEmailResult.reason);
     }
     if (whatsappResult.status === "rejected") {
-      console.error("WhatsApp notification failed");
+      logError("LeadAPI", "whatsApp", "WhatsApp notification failed", whatsappResult.reason);
     }
     if (metaResult.status === "rejected") {
-      console.error("Meta CAPI failed");
+      logError("LeadAPI", "metaCAPI", "Meta CAPI failed", metaResult.reason);
     }
 
+    const durationMs = Math.round(performance.now() - start);
+    log("LeadAPI", "response", "Lead processed successfully", {
+      durationMs,
+      crm: s(crmResult),
+      clientEmail: s(clientEmailResult),
+      teamEmail: s(teamEmailResult),
+      whatsApp: s(whatsappResult),
+      clientWhatsApp: s(clientWhatsappResult),
+      metaCAPI: s(metaResult),
+    });
+
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    logError("LeadAPI", "unhandled", "Internal server error", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -98,7 +98,7 @@ export function ProblemSection() {
                 </span>
               </div>
             </div>
-            <p className="text-center text-sm text-gray-500 mt-4">Tharun Apartment — 3D Stainless Steel Letter Signage, delivered in 48 hours</p>
+            <p className="text-center text-sm text-gray-400 mt-4">Tharun Apartment — 3D Stainless Steel Letter Signage, delivered in 48 hours</p>
           </div>
         </ScrollReveal>
       </div>

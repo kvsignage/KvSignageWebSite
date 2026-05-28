@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { navLinks, siteConfig } from "@/lib/constants";
 
 export function Header() {
@@ -71,45 +70,39 @@ export function Header() {
       </nav>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden bg-gray-900/95 backdrop-blur-lg border-t border-gray-800"
-          >
-            <div className="px-4 py-6 space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block px-4 py-3 text-base font-medium text-gray-300 hover:text-gold hover:bg-gold/5 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="pt-4 space-y-3">
-                <Link
-                  href="/contact"
-                  className="block w-full text-center px-5 py-3.5 bg-gold text-black font-bold rounded-lg hover:bg-gold-light transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Get FREE Design →
-                </Link>
-                <a
-                  href={`tel:${siteConfig.phone}`}
-                  className="block w-full text-center px-5 py-3 border border-gray-700 text-gray-300 rounded-lg hover:border-gold hover:text-gold transition-colors"
-                >
-                  📞 Call Now
-                </a>
-              </div>
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden bg-gray-900/95 backdrop-blur-lg border-t border-gray-800 animate-fade-in"
+        >
+          <div className="px-4 py-6 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block px-4 py-3 text-base font-medium text-gray-300 hover:text-gold hover:bg-gold/5 rounded-lg transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="pt-4 space-y-3">
+              <Link
+                href="/contact"
+                className="block w-full text-center px-5 py-3.5 bg-gold text-black font-bold rounded-lg hover:bg-gold-light transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Get FREE Design →
+              </Link>
+              <a
+                href={`tel:${siteConfig.phone}`}
+                className="block w-full text-center px-5 py-3 border border-gray-700 text-gray-300 rounded-lg hover:border-gold hover:text-gold transition-colors"
+              >
+                📞 Call Now
+              </a>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
