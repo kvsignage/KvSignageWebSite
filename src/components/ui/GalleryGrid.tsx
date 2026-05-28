@@ -104,7 +104,7 @@ const galleryItems = [
   {
     category: "ACP",
     title: "Tharun Apartment – 3D Letter Signage",
-    alt: "3D acrylic letter signage for Tharun Apartment building Chennai",
+    alt: "3D stainless steel letter signage for Tharun Apartment building Chennai",
     image: "/gallery/tharun-apartment-after.jpg",
   },
   {
