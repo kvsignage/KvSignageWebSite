@@ -12,6 +12,29 @@ import { processLead } from "@/lib/process-lead";
 
 const FLOW_ID = process.env.WHATSAPP_FLOW_ID || "";
 
+// Rate limit: only send Flow message once per phone per hour
+const flowCooldownMap = new Map<string, number>();
+const FLOW_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+
+function isOnFlowCooldown(phone: string): boolean {
+  const now = Date.now();
+  const lastSent = flowCooldownMap.get(phone);
+
+  // Clean up old entries periodically
+  if (flowCooldownMap.size > 5000) {
+    for (const [key, timestamp] of flowCooldownMap) {
+      if (now - timestamp > FLOW_COOLDOWN_MS) flowCooldownMap.delete(key);
+    }
+  }
+
+  if (lastSent && now - lastSent < FLOW_COOLDOWN_MS) {
+    return true;
+  }
+
+  flowCooldownMap.set(phone, now);
+  return false;
+}
+
 // Webhook verification
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -76,8 +99,10 @@ export async function POST(request: Request) {
           console.error("Failed to parse Flow response:", error);
         }
       } else {
-        // Any other message (text, image, etc.) — reply with the Flow
-        await sendFlowMessage(phone, contactName);
+        // Any other message (text, image, etc.) — reply with the Flow (max once per hour)
+        if (!isOnFlowCooldown(phone)) {
+          await sendFlowMessage(phone, contactName);
+        }
       }
     }
   }
