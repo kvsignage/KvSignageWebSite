@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     "Read KV Signage's terms and conditions. Understand the terms governing our signage design, fabrication, and installation services in Chennai.",
   robots: { index: true, follow: true },
+  alternates: { canonical: "/terms-and-conditions" },
 };
 
 export default function TermsAndConditionsPage() {

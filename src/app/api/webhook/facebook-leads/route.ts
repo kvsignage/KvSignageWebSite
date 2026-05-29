@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { log, logError, logWarn } from "@/lib/logger";
 import { processLead } from "@/lib/process-lead";
+import { verifyWebhookSignature } from "@/lib/verify-webhook";
+import { FB_GRAPH_API_VERSION } from "@/lib/constants";
 
 /**
  * Facebook Lead Ads Webhook
@@ -28,9 +30,17 @@ export async function GET(request: Request) {
 // Incoming lead ad events
 export async function POST(request: Request) {
   const start = performance.now();
+  const rawBody = await request.text();
+
+  // Verify Meta signature
+  if (!(await verifyWebhookSignature(request, rawBody))) {
+    logWarn("FBWebhook", "signature", "Invalid webhook signature");
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
   let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     logWarn("FBWebhook", "parse", "Invalid request body");
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -85,7 +95,7 @@ async function fetchFacebookLead(leadId: string, _pageId: string) {
 
   try {
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/${leadId}?access_token=${token}`
+      `https://graph.facebook.com/${FB_GRAPH_API_VERSION}/${leadId}?access_token=${token}`
     );
 
     if (!res.ok) {

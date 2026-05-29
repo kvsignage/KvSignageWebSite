@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod/v4";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { services } from "@/lib/constants";
 
@@ -23,16 +23,14 @@ function LeadFormInner({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [utmParams, setUtmParams] = useState<Record<string, string>>({});
-
-  useEffect(() => {
+  const utmParams = useMemo(() => {
     const params: Record<string, string> = {};
     const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
     keys.forEach((key) => {
       const value = searchParams.get(key);
       if (value) params[key] = value;
     });
-    setUtmParams(params);
+    return params;
   }, [searchParams]);
 
   const {

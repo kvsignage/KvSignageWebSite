@@ -1,4 +1,5 @@
 import { log, logError, logWarn } from "@/lib/logger";
+import { FB_GRAPH_API_VERSION } from "@/lib/constants";
 
 interface LeadData {
   name: string;
@@ -33,7 +34,7 @@ async function sendWhatsAppTemplate(
 
   try {
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`,
+      `https://graph.facebook.com/${FB_GRAPH_API_VERSION}/${phoneNumberId}/messages`,
       {
         method: "POST",
         headers: {

@@ -1,25 +1,34 @@
 import { NextResponse } from "next/server";
-import { createHubSpotContact } from "@/lib/hubspot";
 import { log, logError, logWarn } from "@/lib/logger";
-import { sendClientConfirmationEmail, sendSalesTeamNotification } from "@/lib/notify-email";
-import { sendLeadWhatsAppNotification, sendClientWhatsAppConfirmation } from "@/lib/notify-whatsapp";
-import { sendMetaConversionEvent } from "@/lib/meta-capi";
+import { processLead } from "@/lib/process-lead";
 
 // Simple in-memory rate limiter: max 5 submissions per IP per 10 minutes
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
 const WINDOW_MS = 10 * 60 * 1000;
+let requestCount = 0;
+
+// Deduplication: prevent same lead within 5 minutes
+const recentLeads = new Map<string, number>();
+const DEDUP_WINDOW_MS = 5 * 60 * 1000;
+
+function cleanupMaps() {
+  const now = Date.now();
+  for (const [key, val] of rateLimitMap) {
+    if (now > val.resetAt) rateLimitMap.delete(key);
+  }
+  for (const [key, ts] of recentLeads) {
+    if (now - ts > DEDUP_WINDOW_MS) recentLeads.delete(key);
+  }
+}
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+  // Cleanup every 50 requests to prevent memory growth
+  if (++requestCount % 50 === 0) cleanupMaps();
+
   const entry = rateLimitMap.get(ip);
   if (!entry || now > entry.resetAt) {
-    // Clean up expired entries periodically
-    if (rateLimitMap.size > 1000) {
-      for (const [key, val] of rateLimitMap) {
-        if (now > val.resetAt) rateLimitMap.delete(key);
-      }
-    }
     rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
     return false;
   }
@@ -28,9 +37,22 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
+function isDuplicate(email: string, phone: string): boolean {
+  const key = `${email.toLowerCase()}:${phone.replace(/\D/g, "")}`;
+  if (recentLeads.has(key)) return true;
+  recentLeads.set(key, Date.now());
+  return false;
+}
+
 // Email format validation
 function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && email.length < 254;
+}
+
+// Indian phone validation: 10 digits or +91 prefix
+function isValidPhone(phone: string): boolean {
+  const normalized = phone.replace(/[\s\-()]/g, "");
+  return /^(\+91|0)?[6-9]\d{9}$/.test(normalized);
 }
 
 // Allowed origins for CSRF protection
@@ -43,13 +65,19 @@ export async function POST(request: Request) {
   const start = performance.now();
 
   // Origin validation (CSRF protection)
+  // Require at least one of origin or referer to be present and match allowed origins
   const origin = request.headers.get("origin");
-  if (origin && ALLOWED_ORIGINS.length > 0 && !ALLOWED_ORIGINS.includes(origin)) {
-    logWarn("LeadAPI", "csrf", "Blocked request from unknown origin", { origin });
-    return NextResponse.json(
-      { error: "Forbidden" },
-      { status: 403 }
-    );
+  const referer = request.headers.get("referer");
+  const refererOrigin = referer ? new URL(referer).origin : null;
+  const requestOrigin = origin || refererOrigin;
+
+  if (!requestOrigin) {
+    logWarn("LeadAPI", "csrf", "Blocked request — no origin or referer header");
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (ALLOWED_ORIGINS.length > 0 && !ALLOWED_ORIGINS.includes(requestOrigin)) {
+    logWarn("LeadAPI", "csrf", "Blocked request from unknown origin", { origin: requestOrigin });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Rate limiting
@@ -99,6 +127,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Phone format validation
+    if (!isValidPhone(String(phone))) {
+      logWarn("LeadAPI", "validation", "Invalid phone format", { ip });
+      return NextResponse.json(
+        { error: "Invalid phone number" },
+        { status: 400 }
+      );
+    }
+
+    // Deduplication check
+    if (isDuplicate(String(email), String(phone))) {
+      log("LeadAPI", "dedup", "Duplicate submission blocked", { ip });
+      return NextResponse.json({ success: true }); // Silent success to not confuse user
+    }
+
     // Sanitize inputs
     const sanitized = {
       name: String(name).slice(0, 100),
@@ -122,56 +165,23 @@ export async function POST(request: Request) {
 
     log("LeadAPI", "processing", "Starting parallel processing");
 
-    // Push to HubSpot + send notifications + Meta CAPI (all in parallel)
-    const [crmResult, clientEmailResult, teamEmailResult, whatsappResult, clientWhatsappResult, metaResult] = await Promise.allSettled([
-      createHubSpotContact(sanitized),
-      sendClientConfirmationEmail(sanitized),
-      sendSalesTeamNotification(sanitized),
-      sendLeadWhatsAppNotification(sanitized),
-      sendClientWhatsAppConfirmation(sanitized),
-      sendMetaConversionEvent({
-        eventName: "Lead",
-        email: sanitized.email,
-        phone: sanitized.phone,
-        firstName,
-        lastName,
-        customData: {
-          content_name: sanitized.service,
-          content_category: "signage",
-          lead_source: sanitized.utm_source || "organic",
-          campaign: sanitized.utm_campaign,
-        },
-      }),
-    ]);
-
-    const s = (r: PromiseSettledResult<unknown>) => r.status === "fulfilled" ? "ok" : "failed";
-
-    if (crmResult.status === "rejected" || (crmResult.status === "fulfilled" && !crmResult.value)) {
-      logError("LeadAPI", "crm", "CRM push failed", crmResult.status === "rejected" ? crmResult.reason : undefined);
-    }
-    if (clientEmailResult.status === "rejected") {
-      logError("LeadAPI", "clientEmail", "Client email failed", clientEmailResult.reason);
-    }
-    if (teamEmailResult.status === "rejected") {
-      logError("LeadAPI", "teamEmail", "Sales team email failed", teamEmailResult.reason);
-    }
-    if (whatsappResult.status === "rejected") {
-      logError("LeadAPI", "whatsApp", "WhatsApp notification failed", whatsappResult.reason);
-    }
-    if (metaResult.status === "rejected") {
-      logError("LeadAPI", "metaCAPI", "Meta CAPI failed", metaResult.reason);
-    }
+    // Delegate to shared lead processing pipeline
+    await processLead(sanitized, {
+      eventName: "Lead",
+      email: sanitized.email,
+      phone: sanitized.phone,
+      firstName,
+      lastName,
+      customData: {
+        content_name: sanitized.service,
+        content_category: "signage",
+        lead_source: sanitized.utm_source || "organic",
+        campaign: sanitized.utm_campaign,
+      },
+    });
 
     const durationMs = Math.round(performance.now() - start);
-    log("LeadAPI", "response", "Lead processed successfully", {
-      durationMs,
-      crm: s(crmResult),
-      clientEmail: s(clientEmailResult),
-      teamEmail: s(teamEmailResult),
-      whatsApp: s(whatsappResult),
-      clientWhatsApp: s(clientWhatsappResult),
-      metaCAPI: s(metaResult),
-    });
+    log("LeadAPI", "response", "Lead processed successfully", { durationMs });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { log, logError } from "@/lib/logger";
+import { siteConfig } from "@/lib/constants";
 
 interface LeadData {
   name: string;
@@ -60,7 +61,7 @@ export async function sendClientConfirmationEmail(lead: LeadData) {
             </div>
             <p style="color: #444; line-height: 1.6;">
               Need it faster? Call us directly:
-              <a href="tel:+918925756408" style="color: #D4AF37; text-decoration: none; font-weight: 600;">+91 89257 56408</a>
+              <a href="tel:${siteConfig.phone.replace(/\s/g, "")}" style="color: #D4AF37; text-decoration: none; font-weight: 600;">${siteConfig.phone}</a>
             </p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0 16px;" />
             <p style="color: #999; font-size: 12px; text-align: center;">

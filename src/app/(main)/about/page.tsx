@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "About Us",
   description:
     "KV Signage is Chennai's trusted signage partner with 8+ years of experience. We've completed 500+ projects for 300+ happy clients across Tamil Nadu.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

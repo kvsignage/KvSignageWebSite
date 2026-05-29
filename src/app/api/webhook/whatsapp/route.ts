@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { log, logError, logWarn } from "@/lib/logger";
 import { processLead } from "@/lib/process-lead";
+import { verifyWebhookSignature } from "@/lib/verify-webhook";
+import { FB_GRAPH_API_VERSION } from "@/lib/constants";
 
 /**
  * WhatsApp Cloud API Webhook
@@ -16,18 +18,19 @@ const FLOW_ID = process.env.WHATSAPP_FLOW_ID || "";
 // Rate limit: only send Flow message once per phone per hour
 const flowCooldownMap = new Map<string, number>();
 const FLOW_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+let cooldownCheckCount = 0;
 
 function isOnFlowCooldown(phone: string): boolean {
   const now = Date.now();
-  const lastSent = flowCooldownMap.get(phone);
 
-  // Clean up old entries periodically
-  if (flowCooldownMap.size > 5000) {
+  // Periodic cleanup every 50 checks to prevent memory growth
+  if (++cooldownCheckCount % 50 === 0) {
     for (const [key, timestamp] of flowCooldownMap) {
       if (now - timestamp > FLOW_COOLDOWN_MS) flowCooldownMap.delete(key);
     }
   }
 
+  const lastSent = flowCooldownMap.get(phone);
   if (lastSent && now - lastSent < FLOW_COOLDOWN_MS) {
     return true;
   }
@@ -55,9 +58,17 @@ export async function GET(request: Request) {
 // Incoming messages
 export async function POST(request: Request) {
   const start = performance.now();
+  const rawBody = await request.text();
+
+  // Verify Meta signature
+  if (!(await verifyWebhookSignature(request, rawBody))) {
+    logWarn("WAWebhook", "signature", "Invalid webhook signature");
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
   let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     logWarn("WAWebhook", "parse", "Invalid request body");
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -139,7 +150,7 @@ async function sendFlowMessage(to: string, name: string) {
 
   try {
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`,
+      `https://graph.facebook.com/${FB_GRAPH_API_VERSION}/${phoneNumberId}/messages`,
       {
         method: "POST",
         headers: {

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     "Read KV Signage's privacy policy. Learn how we collect, use, and protect your personal information when you use our signage services in Chennai.",
   robots: { index: true, follow: true },
+  alternates: { canonical: "/privacy-policy" },
 };
 
 export default function PrivacyPolicyPage() {

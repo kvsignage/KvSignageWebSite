@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { LeadForm } from "@/components/ui/LeadForm";
+import { siteConfig } from "@/lib/constants";
 
 // Blog post content (in production, this would come from MDX files or CMS)
 const blogContent: Record<string, { title: string; date: string; readTime: string; category: string; content: string }> = {
@@ -210,6 +211,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.title,
     description: post.content.replace(/<[^>]*>/g, "").slice(0, 160),
+    alternates: { canonical: `/blog/${slug}` },
   };
 }
 
@@ -219,8 +221,26 @@ export default async function BlogPost({ params }: Props) {
 
   if (!post) notFound();
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    datePublished: post.date,
+    author: { "@type": "Organization", name: siteConfig.name },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    mainEntityOfPage: `${siteConfig.url}/blog/${slug}`,
+  };
+
   return (
     <div className="pt-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <article className="py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}

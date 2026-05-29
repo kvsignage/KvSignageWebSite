@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Blog - Signage Tips & Guides",
   description:
     "Expert tips on signage, LED boards, neon signs, and branding for businesses in Chennai. Free guides on choosing the right signage for your business.",
+  alternates: { canonical: "/blog" },
 };
 
 const blogPosts = [

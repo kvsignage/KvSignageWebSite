@@ -9,7 +9,7 @@ export const siteConfig = {
   email: "signagekv@gmail.com",
   address: "593, 7th Street, J J Nagar, Mogappair East, Chennai - 600037",
   googleMapsEmbed:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.0!2d80.1768!3d13.0765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a526f5b6a2e3c5d%3A0x1234567890abcdef!2sMogappair%20East%2C%20Chennai%2C%20Tamil%20Nadu%20600037!5e0!3m2!1sen!2sin!4v1",
+    "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d356.4289781987864!2d80.186887940746!3d13.083587437386239!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTPCsDA1JzAwLjkiTiA4MMKwMTEnMTMuMyJF!5e1!3m2!1sen!2sin!4v1779956969008!5m2!1sen!2sin",
   googleMapsLink:
     "https://www.google.com/maps/dir/?api=1&destination=13.083587,80.186888",
   social: {
@@ -17,6 +17,9 @@ export const siteConfig = {
     facebook: "https://www.facebook.com/profile.php?id=61590336094040",
   },
 };
+
+/** Facebook/Meta Graph API version — single source of truth for all integrations */
+export const FB_GRAPH_API_VERSION = "v21.0";
 
 export const services = [
   {

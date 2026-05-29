@@ -12,26 +12,26 @@ export function OfferBar() {
     <div
       className="fixed top-16 lg:top-[72px] left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-sm border-b border-gold/10 animate-slide-down [animation-delay:1000ms] [animation-fill-mode:backwards]"
     >
-      {/* Mobile layout */}
-      <div className="sm:hidden px-8 py-2.5 flex flex-col items-center gap-2 relative">
+      {/* Mobile layout — fixed height to prevent variable spacing across viewports */}
+      <div className="sm:hidden px-4 py-2 flex items-center justify-center gap-2 relative">
+        <p className="text-center text-[11px] text-gold font-medium leading-tight truncate">
+          ✦ FREE Design + Inauguration Banner
+        </p>
+        <Link
+          href="/contact"
+          className="shrink-0 px-3 py-1 bg-gold text-black font-bold text-[11px] rounded hover:bg-gold-light transition-colors"
+        >
+          Claim
+        </Link>
         <button
           onClick={() => setDismissed(true)}
-          className="absolute top-2.5 right-3 p-1 text-gray-500 hover:text-gray-300"
+          className="shrink-0 p-1 text-gray-500 hover:text-gray-300"
           aria-label="Dismiss"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <p className="text-center text-xs text-gold font-medium leading-snug">
-          ✦ Design FREE for all orders. New shop? Inauguration banner FREE
-        </p>
-        <Link
-          href="/contact"
-          className="px-5 py-1.5 bg-gold text-black font-bold text-xs rounded hover:bg-gold-light transition-colors"
-        >
-          Claim Now
-        </Link>
       </div>
 
       {/* Tablet & Desktop layout */}

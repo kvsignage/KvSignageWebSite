@@ -1,4 +1,5 @@
 import { log, logError, logWarn } from "@/lib/logger";
+import { FB_GRAPH_API_VERSION } from "@/lib/constants";
 
 interface MetaEventData {
   event_name: string;
@@ -73,7 +74,7 @@ export async function sendMetaConversionEvent({
 
   try {
     const res = await fetch(
-      `https://graph.facebook.com/v21.0/${pixelId}/events`,
+      `https://graph.facebook.com/${FB_GRAPH_API_VERSION}/${pixelId}/events`,
       {
         method: "POST",
         headers: {

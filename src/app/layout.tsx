@@ -40,7 +40,6 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo.svg", type: "image/svg+xml" },
     ],
     apple: { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     shortcut: "/favicon.ico",
@@ -78,7 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${sora.variable}`}>
       <head>
         <script
           type="application/ld+json"

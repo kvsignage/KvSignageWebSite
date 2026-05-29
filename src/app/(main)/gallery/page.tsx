@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Gallery - Our Work | KV Signage Chennai",
   description:
     "Browse our portfolio of 500+ signage projects in Chennai. LED sign boards, neon signs, ACP letters, flex banners and more. See the quality before you order.",
+  alternates: { canonical: "/gallery" },
 };
 
 export default function GalleryPage() {

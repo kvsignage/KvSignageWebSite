@@ -3,14 +3,12 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { LeadForm } from "@/components/ui/LeadForm";
 import { siteConfig } from "@/lib/constants";
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
 export const metadata: Metadata = {
   title: "Contact Us - Get Your Free Design",
   description:
     "Contact KV Signage Chennai for a FREE design mockup (every order). Opening a new shop? Inauguration banner is on us. Call, WhatsApp, or fill our form.",
   alternates: {
-    canonical: `${baseUrl}/contact`,
+    canonical: "/contact",
   },
 };
 

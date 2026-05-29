@@ -10,12 +10,12 @@ export function Hero() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold/[0.03] rounded-full blur-[150px]" />
 
       {/* 
-        Spacing math:
-        Mobile:  header(64) + offerbar(~72) + gap(24) = 160px ≈ pt-[160px]
-        Tablet:  header(64) + offerbar(~40) + gap(28) = 132px ≈ sm:pt-[132px]
-        Desktop: header(72) + offerbar(~40) + gap(32) = 144px ≈ lg:pt-36
+        Spacing: header(64/72) + offerbar(36/40) + gap(24-32)
+        Mobile:  64 + 36 + 24 = 124px → pt-[124px]
+        Tablet:  64 + 40 + 28 = 132px → sm:pt-[132px]
+        Desktop: 72 + 40 + 32 = 144px → lg:pt-36
       */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 pt-[172px] sm:pt-[132px] lg:pt-36 pb-20 sm:pb-24 lg:pb-32 text-center flex flex-col items-center sm:justify-center sm:min-h-svh">
+      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 pt-[124px] sm:pt-[132px] lg:pt-36 pb-20 sm:pb-24 lg:pb-32 text-center flex flex-col items-center sm:justify-center sm:min-h-svh">
         {/* Urgency Badge */}
         <div
           className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-gold/[0.08] border border-gold/20 mb-6 sm:mb-8 animate-fade-in-up"
@@ -28,11 +28,11 @@ export function Hero() {
 
         {/* Headline */}
         <h1
-          className="text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight animate-fade-in-up [animation-delay:100ms]"
+          className="text-[clamp(1.6rem,6vw,1.875rem)] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight text-balance animate-fade-in-up [animation-delay:100ms]"
         >
-          Get <span className="text-gold">40% More Walk-ins</span>
+          <span className="whitespace-nowrap">Get <span className="text-gold">40% More Walk-ins</span></span>
           <br className="hidden sm:block" />
-          <span className="sm:mt-2 inline-block"> With Signage That Sells</span>
+          <span className="whitespace-nowrap sm:mt-2 inline-block"> With Signage That Sells</span>
         </h1>
 
         {/* Value Props */}
