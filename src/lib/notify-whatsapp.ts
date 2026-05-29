@@ -16,11 +16,16 @@ const TEMPLATES = {
   CLIENT_CONFIRMATION: "lead_confirmation",
 };
 
+interface NamedParam {
+  name: string;
+  value: string;
+}
+
 async function sendWhatsAppTemplate(
   to: string,
   templateName: string,
   languageCode: string,
-  bodyParameters: string[]
+  bodyParameters: NamedParam[]
 ) {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -51,9 +56,10 @@ async function sendWhatsAppTemplate(
             components: [
               {
                 type: "body",
-                parameters: bodyParameters.map((text) => ({
+                parameters: bodyParameters.map((p) => ({
                   type: "text",
-                  text,
+                  parameter_name: p.name,
+                  text: p.value,
                 })),
               },
             ],
@@ -80,7 +86,7 @@ async function sendWhatsAppTemplate(
 /**
  * Notify your sales team about a new lead.
  * Template: new_lead_alert
- * Variables: {{1}} name, {{2}} email, {{3}} phone, {{4}} business, {{5}} service, {{6}} message
+ * Variables: {{name}}, {{email}}, {{phone}}, {{b_name}}, {{service_name}}, {{message}}
  */
 export async function sendLeadWhatsAppNotification(lead: LeadData) {
   const notifyPhone = process.env.WHATSAPP_NOTIFY_PHONE;
@@ -93,23 +99,26 @@ export async function sendLeadWhatsAppNotification(lead: LeadData) {
   log("WhatsApp", "teamNotify", "Sending team notification", { lead: lead.name });
 
   return sendWhatsAppTemplate(notifyPhone, TEMPLATES.SALES_NOTIFICATION, "en", [
-    lead.name,
-    lead.email,
-    lead.phone,
-    lead.business,
-    lead.service,
-    lead.message || "No message",
+    { name: "name", value: lead.name },
+    { name: "email", value: lead.email },
+    { name: "phone", value: lead.phone },
+    { name: "b_name", value: lead.business },
+    { name: "service_name", value: lead.service },
+    { name: "message", value: lead.message || "No message" },
   ]);
 }
 
 /**
  * Send confirmation to the client who submitted the enquiry.
  * Template: lead_confirmation
- * Variables: {{1}} name, {{2}} service
+ * Variables: {{name}}, {{s_name}}, {{r_id}}
  */
 export async function sendClientWhatsAppConfirmation(lead: LeadData) {
   // Client phone should be in international format (e.g., 919876543210)
-  const clientPhone = lead.phone.replace(/[^0-9]/g, "");
+  let clientPhone = lead.phone.replace(/[^0-9]/g, "");
+
+  // Auto-prefix 91 for 10-digit Indian numbers
+  if (clientPhone.length === 10) clientPhone = `91${clientPhone}`;
 
   if (!clientPhone) {
     logWarn("WhatsApp", "clientConfirm", "Client phone number invalid", { raw: lead.phone });
@@ -120,6 +129,10 @@ export async function sendClientWhatsAppConfirmation(lead: LeadData) {
     clientPhone,
     TEMPLATES.CLIENT_CONFIRMATION,
     "en",
-    [lead.name, lead.service,refId]
+    [
+      { name: "name", value: lead.name },
+      { name: "s_name", value: lead.service },
+      { name: "r_id", value: refId },
+    ]
   );
 }

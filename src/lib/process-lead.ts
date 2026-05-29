@@ -45,9 +45,9 @@ export async function processLead(lead: LeadInput, metaCapi?: MetaCapiData) {
     lead.email && !lead.email.includes("@placeholder.local")
       ? sendClientConfirmationEmail(lead)
       : Promise.resolve(null),
-    lead.phone
-      ? sendClientWhatsAppConfirmation(lead)
-      : Promise.resolve(null),
+    // lead.phone
+    //   ? sendClientWhatsAppConfirmation(lead)
+    //   : Promise.resolve(null),
   ];
 
   // Meta CAPI — only for website form submissions (not webhooks)
