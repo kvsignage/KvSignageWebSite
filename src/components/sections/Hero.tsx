@@ -28,12 +28,12 @@ export function Hero() {
 
         {/* Headline */}
         <h1
-          className="text-[clamp(1.6rem,6vw,1.875rem)] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight text-balance animate-fade-in-up [animation-delay:100ms]"
+          className="text-[clamp(1.6rem,6vw,1.875rem)] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-bold font-[family-name:var(--font-heading)] leading-[1.15] tracking-tight animate-fade-in-up [animation-delay:100ms]"
         >
-          <span className="whitespace-nowrap">Get <span className="text-gold">40% More Walk-ins</span></span>
-          <br className="hidden sm:block" />
-          <span className="whitespace-nowrap sm:mt-2 inline-block"> With Signage That Sells</span>
+          <span className="block sm:inline">Get <span className="text-gold">40% More Walk-ins</span></span>
+          <span className="block sm:inline sm:mt-2">With Signage That Sells</span>
         </h1>
+
 
         {/* Value Props */}
         <div
